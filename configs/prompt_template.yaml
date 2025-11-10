@@ -1,0 +1,105 @@
+# 提示工程模板配置 
+
+# 完整提示模板 (四组件)
+full_template:
+  system_role: |
+    你是一名专业的自然语言处理专家，专注于医疗知识图谱构建。
+    你的任务是从医学文本中精确抽取结构化的知识三元组。
+  
+  triple_definition: |
+    知识三元组格式为: (头实体, 关系, 尾实体)
+    
+    示例:
+    - (肺癌, 症状, 咳嗽)
+    - (肺癌, 检查方法, CT扫描)
+    - (肺癌, 治疗方法, 化疗)
+    - (化疗, 药物, 紫杉醇)
+    - (紫杉醇, 剂量, 175mg/m²)
+  
+  output_format: |
+    输出要求:
+    1. 使用JSON格式
+    2. 返回列表形式: [(头实体1, 关系1, 尾实体1), (头实体2, 关系2, 尾实体2), ...]
+    3. 实体名称要规范化，避免冗长短语
+    4. 关系名称要清晰明确
+    5. 不要包含任何解释性文字
+  
+  cot_reasoning: |
+    抽取规则 (逐步思考):
+    1. 首先识别主要疾病实体作为核心节点
+    2. 然后提取与疾病直接相关的属性 (症状、检查、治疗等)
+    3. 对于嵌套关系，递归抽取 (如: 疾病→治疗→药物→剂量)
+    4. 确保每个三元组都是独立且完整的
+    5. 让我们一步一步思考 (Let's think step by step)
+
+# 构建完整提示的模板
+instruction_template: |
+  {system_role}
+  
+  {triple_definition}
+  
+  {output_format}
+  
+  {cot_reasoning}
+  
+  请从以下句子中抽取所有知识三元组:
+  
+  给定句子: {input_text}
+  
+  抽取的三元组:
+
+# 消融实验模板
+ablation_templates:
+  # 无系统角色
+  without_system_role:
+    use_system_role: false
+    use_triple_definition: true
+    use_output_format: true
+    use_cot_reasoning: true
+  
+  # 无三元组定义
+  without_triple_schema:
+    use_system_role: true
+    use_triple_definition: false
+    use_output_format: true
+    use_cot_reasoning: true
+  
+  # 无CoT推理
+  without_cot:
+    use_system_role: true
+    use_triple_definition: true
+    use_output_format: true
+    use_cot_reasoning: false
+  
+  # 自由生成
+  free_generation:
+    use_system_role: false
+    use_triple_definition: false
+    use_output_format: false
+    use_cot_reasoning: false
+
+# 实体关系类型定义
+entity_types:
+  - "疾病"
+  - "症状"
+  - "检查"
+  - "药物"
+  - "治疗方法"
+  - "病因"
+  - "并发症"
+  - "预后"
+
+relation_types:
+  - "症状"
+  - "病因"
+  - "检查方法"
+  - "检查结果"
+  - "治疗方法"
+  - "药物"
+  - "剂量"
+  - "疗程"
+  - "并发症"
+  - "预后"
+  - "诱因"
+  - "发病部位"
+

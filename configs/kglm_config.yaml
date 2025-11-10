@@ -1,0 +1,73 @@
+# KGLM模型训练配置
+
+# 模型配置
+model:
+  name: "ChatGLM-6B"
+  model_path: "THUDM/chatglm-6b"  # 或本地路径
+  checkpoint_dir: "models/kglm"
+  
+# LoRA配置
+lora:
+  r: 8                    # LoRA秩
+  lora_alpha: 32          # LoRA缩放因子
+  lora_dropout: 0.1       # Dropout率
+  target_modules:         # 目标模块
+    - "query_key_value"
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# 量化配置 (QLoRA)
+quantization:
+  load_in_8bit: true      # 8-bit量化
+  bnb_8bit_compute_dtype: "float16"
+  bnb_8bit_use_double_quant: true
+  bnb_8bit_quant_type: "nf4"
+
+# 训练配置 
+training:
+  output_dir: "models/kglm"
+  num_train_epochs: 1
+  max_steps: 3000                    
+  per_device_train_batch_size: 64    
+  per_device_eval_batch_size: 64
+  gradient_accumulation_steps: 1
+  learning_rate: 2.0e-4              
+  lr_scheduler_type: "cosine"
+  warmup_steps: 100
+  weight_decay: 0.01
+  logging_steps: 10
+  save_steps: 500
+  eval_steps: 500
+  save_total_limit: 3
+  fp16: true                         # 混合精度
+  gradient_checkpointing: true       # 节省显存
+  optim: "adamw_torch"               # AdamW优化器
+  
+# 数据配置
+data:
+  train_file: "data/splits/train.json"
+  validation_file: "data/splits/val.json"
+  test_file: "data/splits/test.json"
+  max_source_length: 512
+  max_target_length: 256
+  preprocessing_num_workers: 4
+
+# 早停配置
+early_stopping:
+  patience: 3
+  metric: "eval_loss"
+  mode: "min"
+
+# 硬件配置
+hardware:
+  gpu_id: 0
+  num_gpus: 1
+  seed: 42
+  
+# 日志配置
+logging:
+  log_dir: "outputs/logs"
+  tensorboard: true
+  wandb: false  # 设为true启用W&B跟踪
+  project_name: "LCKG-KGLM"
+
